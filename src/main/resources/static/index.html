@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coworking Space - Gestión de Reservas</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <h1 class="header__title">Coworking Space</h1>
+      <p class="header__subtitle">Sistema de Gestión de Reservas</p>
+    </div>
+  </header>
+
+  <main class="main container">
+    <section class="section" id="section-spaces" aria-label="Espacios disponibles">
+      <div class="section__header">
+        <h2 class="section__title">Espacios Disponibles</h2>
+        <button class="btn btn--outline btn--sm" id="btn-refresh-spaces" type="button">
+          &#x21bb; Actualizar
+        </button>
+      </div>
+      <div class="spaces-grid" id="spaces-grid">
+        <p class="text-muted" id="spaces-loading">Cargando espacios...</p>
+      </div>
+    </section>
+
+    <section class="section" id="section-form" aria-label="Nueva reserva">
+      <h2 class="section__title">Nueva Reserva</h2>
+      <form class="form" id="reservation-form" novalidate>
+        <div class="form__group">
+          <label class="form__label" for="spaceId">ID del Espacio</label>
+          <select class="form__control" id="spaceId" name="spaceId" required>
+            <option value="">Seleccione un espacio</option>
+          </select>
+          <span class="form__error" id="error-spaceId"></span>
+        </div>
+
+        <div class="form__row">
+          <div class="form__group">
+            <label class="form__label" for="startDate">Fecha y hora de inicio</label>
+            <input class="form__control" type="datetime-local" id="startDate" name="startDate" required>
+            <span class="form__error" id="error-startDate"></span>
+          </div>
+          <div class="form__group">
+            <label class="form__label" for="endDate">Fecha de fin</label>
+            <input class="form__control" type="date" id="endDate" name="endDate" required>
+            <span class="form__error" id="error-endDate"></span>
+          </div>
+        </div>
+
+        <div class="form__group">
+          <label class="form__label" for="userEmail">Correo del usuario</label>
+          <input class="form__control" type="email" id="userEmail" name="userEmail"
+                 placeholder="usuario@ejemplo.com" required>
+          <span class="form__error" id="error-userEmail"></span>
+        </div>
+
+        <div class="form__actions">
+          <button class="btn btn--primary" type="submit" id="btn-submit">
+            Crear Reserva
+          </button>
+          <button class="btn btn--ghost" type="reset" id="btn-reset">
+            Limpiar
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="section" id="section-reservations" aria-label="Listado de reservas">
+      <div class="section__header">
+        <h2 class="section__title">Reservas</h2>
+      </div>
+      <div class="table-wrapper">
+        <table class="table" id="reservations-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Espacio</th>
+              <th>Usuario</th>
+              <th>Inicio</th>
+              <th>Fin</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="reservations-body">
+            <tr>
+              <td colspan="6" class="text-muted text-center">No hay reservas registradas.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
