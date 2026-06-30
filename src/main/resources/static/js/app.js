@@ -1,6 +1,6 @@
-const BACKEND_URL = 'https://reco-yuy9.onrender.com';
+const BACKEND_URL = window.location.origin;
 const API_BASE = `${BACKEND_URL}/spaces`;
-const RESERVATIONS_API = `${BACKEND_URL}/reservations`;
+const RESERVATIONS_API = `${BACKEND_URL}/reservation`;
 
 const state = {
   spaces: [],
@@ -62,6 +62,14 @@ async function loadSpaces() {
   renderSpaces(spaces);
 }
 
+function getSpaceId(r) {
+  return r.space?.id ?? r.spaceId;
+}
+
+function getUserEmail(r) {
+  return r.user?.email ?? r.userEmail;
+}
+
 function addReservationToTable(r) {
   const statusClass =
     r.status === 'CONFIRMED' ? 'status-badge--confirmed' :
@@ -74,8 +82,8 @@ function addReservationToTable(r) {
   const row = document.createElement('tr');
   row.innerHTML = `
     <td>${r.id}</td>
-    <td>#${r.spaceId}</td>
-    <td>${escapeHtml(r.userEmail)}</td>
+    <td>#${getSpaceId(r)}</td>
+    <td>${escapeHtml(getUserEmail(r))}</td>
     <td>${formatDate(r.startDate)}</td>
     <td>${r.endDate}</td>
     <td><span class="status-badge ${statusClass}">${r.status}</span></td>
@@ -92,11 +100,16 @@ function formatDate(iso) {
   });
 }
 
+function toBackendDatetime(value) {
+  if (!value) return value;
+  return value.includes('T') && value.length <= 16 ? value + ':00' : value;
+}
+
 function getFormData() {
   const data = {
     spaceId: parseInt(spaceSelect.value, 10),
-    startDate: form.startDate.value,
-    endDate: form.endDate.value,
+    startDate: toBackendDatetime(form.startDate.value),
+    endDate: toBackendDatetime(form.endDate.value),
     userEmail: form.userEmail.value.trim(),
   };
   return data;
@@ -238,6 +251,89 @@ async function submitReservation(data) {
   }
 }
 
+function getSpaceFormData() {
+  return {
+    name: $('#spaceName').value.trim(),
+    type: $('#spaceType').value.trim(),
+    location: $('#spaceLocation').value.trim(),
+    price: parseFloat($('#spacePrice').value) || 0,
+  };
+}
+
+function validateSpaceForm(data) {
+  $$('#space-form .form__control').forEach(el => el.classList.remove('form__control--error'));
+  $$('#space-form .form__error').forEach(el => el.textContent = '');
+  let valid = true;
+
+  if (!data.name) {
+    $('#error-spaceName').textContent = 'El nombre es obligatorio.';
+    $('#spaceName').classList.add('form__control--error');
+    valid = false;
+  }
+  if (!data.type) {
+    $('#error-spaceType').textContent = 'El tipo es obligatorio.';
+    $('#spaceType').classList.add('form__control--error');
+    valid = false;
+  }
+  if (!data.location) {
+    $('#error-spaceLocation').textContent = 'La ubicación es obligatoria.';
+    $('#spaceLocation').classList.add('form__control--error');
+    valid = false;
+  }
+  if (data.price <= 0) {
+    $('#error-spacePrice').textContent = 'El precio debe ser mayor a 0.';
+    $('#spacePrice').classList.add('form__control--error');
+    valid = false;
+  }
+
+  return valid;
+}
+
+async function submitSpace(data) {
+  const btn = $('#btn-submit-space');
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  try {
+    const res = await fetch(`${API_BASE}/add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      const errMsg = await res.text().catch(() => 'Error del servidor');
+      throw new Error(errMsg || `Error ${res.status}`);
+    }
+
+    showToast('Espacio agregado exitosamente.', 'success');
+    $('#space-form').reset();
+    await loadSpaces();
+  } catch (err) {
+    console.error('Error al crear espacio:', err);
+    let msg = err.message;
+    if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+      msg = 'No se pudo conectar con el servidor.';
+    }
+    showToast(msg, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Agregar Espacio';
+  }
+}
+
+function handleSpaceSubmit(e) {
+  e.preventDefault();
+  const data = getSpaceFormData();
+  if (!validateSpaceForm(data)) return;
+  submitSpace(data);
+}
+
+function handleSpaceReset() {
+  $$('#space-form .form__control').forEach(el => el.classList.remove('form__control--error'));
+  $$('#space-form .form__error').forEach(el => el.textContent = '');
+}
+
 function handleSubmit(e) {
   e.preventDefault();
   const data = getFormData();
@@ -249,8 +345,26 @@ function handleReset() {
   clearErrors();
 }
 
+async function loadReservations() {
+  try {
+    const res = await fetch(`${RESERVATIONS_API}/all`);
+    if (!res.ok) {
+      if (res.status === 204) return;
+      throw new Error(`Error ${res.status}`);
+    }
+    const reservations = await res.json();
+    state.reservations = reservations;
+    reservations.forEach(addReservationToTable);
+  } catch (err) {
+    console.error('Error al cargar reservas:', err);
+  }
+}
+
 form.addEventListener('submit', handleSubmit);
 form.addEventListener('reset', handleReset);
+$('#space-form').addEventListener('submit', handleSpaceSubmit);
+$('#space-form').addEventListener('reset', handleSpaceReset);
 btnRefresh.addEventListener('click', loadSpaces);
 
 loadSpaces();
+loadReservations();

@@ -20,7 +20,7 @@ public class SpaceService {
     }
 
     public Space getById(Integer id) {
-        return repository.getById(id);
+        return repository.findById(id).orElse(null);
     }
 
     public Space add(Space space) {
@@ -36,7 +36,7 @@ public class SpaceService {
     }
 
     public Space update(Space space) {
-        Space spaceExits = repository.getById(space.getId());
+        Space spaceExits = repository.findById(space.getId()).orElse(null);
         if (spaceExits != null) {
             if (space.getName() != null) {
                 spaceExits.setName(space.getName());
@@ -58,7 +58,7 @@ public class SpaceService {
     }
 
     public Space delete(Integer id) {
-        Space spaceExits = repository.getById(id);
+        Space spaceExits = repository.findById(id).orElse(null);
         if (spaceExits != null) {
             repository.deleteById(id);
             return spaceExits;
@@ -68,7 +68,7 @@ public class SpaceService {
 
 
     public Space changePrice(Integer id, Double price) {
-        Space spaceExits = repository.getById(id);
+        Space spaceExits = repository.findById(id).orElse(null);
         if (spaceExits != null) {
             spaceExits.setPrice(price);
             return repository.save(spaceExits);

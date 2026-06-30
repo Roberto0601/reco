@@ -27,6 +27,40 @@
       </div>
     </section>
 
+    <section class="section" id="section-new-space" aria-label="Nuevo espacio">
+      <h2 class="section__title">Nuevo Espacio</h2>
+      <form class="form" id="space-form" novalidate>
+        <div class="form__row">
+          <div class="form__group">
+            <label class="form__label" for="spaceName">Nombre</label>
+            <input class="form__control" type="text" id="spaceName" name="name" placeholder="Ej: Sala A" required>
+            <span class="form__error" id="error-spaceName"></span>
+          </div>
+          <div class="form__group">
+            <label class="form__label" for="spaceType">Tipo</label>
+            <input class="form__control" type="text" id="spaceType" name="type" placeholder="Ej: Sala de reuniones" required>
+            <span class="form__error" id="error-spaceType"></span>
+          </div>
+        </div>
+        <div class="form__row">
+          <div class="form__group">
+            <label class="form__label" for="spaceLocation">Ubicación</label>
+            <input class="form__control" type="text" id="spaceLocation" name="location" placeholder="Ej: Piso 1" required>
+            <span class="form__error" id="error-spaceLocation"></span>
+          </div>
+          <div class="form__group">
+            <label class="form__label" for="spacePrice">Precio por hora ($)</label>
+            <input class="form__control" type="number" id="spacePrice" name="price" placeholder="0.00" min="0" step="0.01" required>
+            <span class="form__error" id="error-spacePrice"></span>
+          </div>
+        </div>
+        <div class="form__actions">
+          <button class="btn btn--primary" type="submit" id="btn-submit-space">Agregar Espacio</button>
+          <button class="btn btn--ghost" type="reset" id="btn-reset-space">Limpiar</button>
+        </div>
+      </form>
+    </section>
+
     <section class="section" id="section-form" aria-label="Nueva reserva">
       <h2 class="section__title">Nueva Reserva</h2>
       <form class="form" id="reservation-form" novalidate>
@@ -46,7 +80,7 @@
           </div>
           <div class="form__group">
             <label class="form__label" for="endDate">Fecha de fin</label>
-            <input class="form__control" type="date" id="endDate" name="endDate" required>
+            <input class="form__control" type="datetime-local" id="endDate" name="endDate" required>
             <span class="form__error" id="error-endDate"></span>
           </div>
         </div>
